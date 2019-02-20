@@ -1,6 +1,7 @@
 import java.util.*;
 import java.util.Scanner;
 
+// Position ist eine Datenstruktur um die Zeilen/Spalten (Koordinaten) des Spiels zu spezifizieren.
 class Position {
     public int x;
     public int y;
@@ -84,7 +85,7 @@ class GameEngine {
 class TestFrontend {
     public static void main(String[] args) {
         GameEngine x = new GameEngine();
-        x.test();
-        
+        x.test();   
     }
 }
+
