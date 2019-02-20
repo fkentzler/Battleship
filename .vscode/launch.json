@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - TestFrontend",
+            "request": "launch",
+            "mainClass": "TestFrontend",
+            "projectName": "info_7bc9c4b5"
+        }
+    ]
+}
