@@ -32,8 +32,13 @@ class Settings {
 
     public static boolean[][] spawnRandomShips () {
         boolean[][] map = new boolean[Size][Size];
-        // todo
+        
+        var spawnRandom = (length) -> {
+            return length * length;
+        };
+
         return map;
+
     }
 }
 
