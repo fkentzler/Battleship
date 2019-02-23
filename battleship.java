@@ -254,6 +254,18 @@ class GameEngine {
 }
 
 class TerminalBattleship {
+    public showState (Controller player, Controller enemy, String title, boolean extendet) {
+        // TODO
+    }
+
+    public showPlayerState (Controller player) {
+        // TODO
+    }
+
+    public Position turn(Controller enemy, Controller player) {
+        // TODO
+    }
+
     private static Controller play(GameEngine engine, int round) {
         GameStatus status = engine.run();
         switch (status) {
