@@ -1,5 +1,9 @@
-import java.util.*;
-import java.util.Scanner;
+// TODO
+// - turn-Funktion implementieren für Terminal-Player
+// - Ausgabe farbig machen (lesbarkeit)
+// - Optionale Custom-Belegung des Spielfeldes vom Terminal-Player
+// - bessere AI
+// - Ansage bei vollständiger Zerstörung eines Schiffs
 
 // Position ist eine Datenstruktur um die Zeilen/Spalten (Koordinaten) des Spiels zu spezifizieren.
 // Es werden die Integers row und column initialisiert.
@@ -381,7 +385,7 @@ class TerminalBattleship {
     }
 }
 
-class Main {
+class Battleship {
     public static void main (String[] args) {
         TerminalBattleship.main();
     }
