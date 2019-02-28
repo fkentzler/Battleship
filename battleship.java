@@ -36,7 +36,7 @@ enum GameStatus {
     GameInProgress
 }
 
-// Hier wird definiert, dass eine Schissposition immer aus den Koordinaten der Position, 
+// Hier wird definiert, dass eine Schiffsposition immer aus den Koordinaten der Position, 
 // sowie einer Ausrichtung bestehen muss.
 class ShipLocation {
     Position position;
@@ -116,6 +116,9 @@ class Settings {
         if (location.orientation == Orientation.South)
             for (int row = location.position.row; row < length + location.position.row; row++)
                 map[row][location.position.column] = true;
+        else if (location.orientation == Orientation.East)
+            for (int column = location.position.column; column < length + location.position.column; column++)
+                map[location.position.row][column] = true;
     }
 
     // Erstellt ein Spielfeld und initialisiert Schiffe an zufälliger Position
@@ -142,6 +145,10 @@ class Controller {
 
     public String getPlayerName() {
         return this.playerName;
+    }
+
+    public boolean hasShipPresentAt(int row, int column) {
+        return this.myMap[row][column];
     }
 
     Controller (String playerName, TurnFunction turn, boolean[][] myMap) {
@@ -253,39 +260,124 @@ class GameEngine {
     }
 }
 
+// Schiffe Versenken Konsolenfrontend
 class TerminalBattleship {
-    public showState (Controller player, Controller enemy, String title, boolean extendet) {
-        // TODO
+    private static void printRow(int row, Controller player) {
+        System.out.printf("    |");
+        for (int column = 0; column < Settings.Size; column++) {
+            if (player.hasShipPresentAt(row, column)) 
+                System.out.printf("*");
+            else 
+                System.out.printf(".");
+        }
+        System.out.printf("|    |");
+        for (int column = 0; column < Settings.Size; column++) {
+            switch (player.getHitStatus(row, column)) {
+                case HitMiss:
+                    System.out.printf("-");
+                    break;
+                case HitSuccess:
+                    System.out.printf("+");
+                    break;
+                case HitUnknown:
+                default:
+                    System.out.printf(".");
+                    break;
+            }
+        }
+        System.out.printf("|");
+
+    }
+    // Die Funktion gibt den Ist-Zustand des Spieler-Boards aus. (Die aktuelle Belegung der Schiffe,
+    // welche noch am Leben sind und die geratenen Koordinaten des gegnerischen Boards.)
+    public static void showState (Controller player) {
+        System.out.printf("Zeige Spielerkarte für %s\n", player.getPlayerName());
+        for (int k = 0; k < 2; k++) {
+            System.out.printf("    +");
+            for (int i = 0; i < Settings.Size; i++)
+                System.out.printf("-");
+            System.out.printf("+");
+        }
+        System.out.printf("\n");
+        for (int row = 0; row < Settings.Size; row++) {
+            printRow(row, player);
+            System.out.printf("\n");
+        }
+        for (int k = 0; k < 2; k++) {
+            System.out.printf("    +");
+            for (int i = 0; i < Settings.Size; i++)
+                System.out.printf("-");
+            System.out.printf("+");
+        }
+        System.out.printf("\n");
     }
 
-    public showPlayerState (Controller player) {
-        // TODO
+    // Die Funktion gibt jeweils die aktuelle Map beider Spielteilnehmer, sowie die "Rate-Boards" beider
+    // Spieler.
+    public static void showFullState (Controller player, Controller enemy, String title) {
+        System.out.printf("(%s) Zeige die Karten des Spielers %s und des Gegners %s:\n", title, player.getPlayerName(), enemy.getPlayerName());
+        for (int k = 0; k < 4; k++) {
+            System.out.printf("    +");
+            for (int i = 0; i < Settings.Size; i++)
+                System.out.printf("-");
+            System.out.printf("+");
+        }
+        System.out.printf("\n");
+        for (int row = 0; row < Settings.Size; row++) {
+            printRow(row, player);
+            printRow(row, enemy);
+            System.out.printf("\n");
+        }
+         
+        for (int k = 0; k < 4; k++) {
+            System.out.printf("    +");
+            for (int i = 0; i < Settings.Size; i++)
+                System.out.printf("-");
+            System.out.printf("+");
+        }
+        System.out.printf("\n"); 
     }
 
-    public Position turn(Controller enemy, Controller player) {
+    // Implementiert den Spielzug des Konsolenspielers (über die Standardeingabe und Standardausgabe)
+    //public Position turn(Controller enemy, Controller player) {
         // TODO
+    //}
+
+    // GameResult repräsentiert den Gewinner sowie die Rundenanzahl bis zum Sieg.
+    static class GameResult {
+        public int rounds;
+        public Controller winner;
+
+        public GameResult(int rounds, Controller winner) {
+            this.rounds = rounds;
+            this.winner = winner;
+        }
     }
 
-    private static Controller play(GameEngine engine, int round) {
+    // Führt die Spielzüge aus bis einer der beiden Spieler gewonnen hat. 
+    private static GameResult play(GameEngine engine, int round) {
         GameStatus status = engine.run();
         switch (status) {
             case PlayerHasWon:
-                return engine.player;
+                return new GameResult(round, engine.player);
             case EnemyHasWon:
-                return engine.enemy;
+                return new GameResult(round, engine.enemy);
             case GameInProgress:
             default:
+                showState(engine.player);
                 return play(engine, round + 1);
         }
     }
 
+    // Implementiert die Hauptfunktionen des Spiels
     public static void main() {
         Controller enemy = new Controller("Alice", AI::turnRandom, Settings.spawnRandomShips());  
         Controller player = new Controller("Bob", AI::turnRandom, Settings.spawnRandomShips());
         
         GameEngine engine = new GameEngine(player, enemy);
-        Controller winner = play(engine, 1);
-        System.out.printf("%s hat gewonnen.", winner.getPlayerName());
+        GameResult result = play(engine, 1);
+        System.out.printf("%s hat nach %d Spielzügen gewonnen.\n", result.winner.getPlayerName(), result.rounds);
+        showFullState(player, enemy, "Letzte Runde");
     }
 }
 
